@@ -1,0 +1,12 @@
+name: ExampleTeamDeathMatch
+main: example_team_death_match\Main
+version: 1.0.0
+api: 3.0.0
+
+commands:
+  join:
+    usage: "/join"
+    description: "join game"
+  start:
+    usage: "/start"
+    description: "start game"
