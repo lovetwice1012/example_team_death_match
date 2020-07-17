@@ -6,7 +6,6 @@ use bossbar_system\models\BossBar;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\event\Listener;
-use pocketmine\event\player\PlayerChatEvent;
 use pocketmine\event\player\PlayerDeathEvent;
 use pocketmine\event\player\PlayerRespawnEvent;
 use pocketmine\item\ItemFactory;
@@ -23,7 +22,6 @@ use team_game_system\pmmp\event\PlayerJoinedGameEvent;
 use team_game_system\pmmp\event\PlayerKilledPlayerEvent;
 use team_game_system\pmmp\event\StartedGameEvent;
 use team_game_system\pmmp\event\UpdatedGameTimerEvent;
-use team_game_system\store\PlayerDataStore;
 use team_game_system\TeamGameSystem;
 
 class Main extends PluginBase implements Listener
@@ -74,14 +72,15 @@ class Main extends PluginBase implements Listener
     public function onAddedScore(AddedScoreEvent $event): void {
         $gameId = $event->getGameId();
         if (in_array($gameId, $this->teamDeathMatchGameIds)) {
-            $players = TeamGameSystem::getGamePlayersData($gameId);
+            $playersData = TeamGameSystem::getGamePlayersData($gameId);
             $game = TeamGameSystem::getGame($gameId);
 
             $redTeam = $game->getTeams()[0];
             $blueTeam = $game->getTeams()[1];
 
-            foreach ($players as $player) {
-                TeamDeathMatchScoreBoard::send($player, $game->getMap()->getName(), $redTeam->getScore()->getValue(), $blueTeam->getScore()->getValue());
+            foreach ($playersData as $playerData) {
+                $player = $this->getServer()->getPlayer($playerData->getName());
+                TeamDeathMatchScoreBoard::update($player, $game->getMap()->getName(), $redTeam->getScore()->getValue(), $blueTeam->getScore()->getValue());
             }
         }
     }
@@ -100,8 +99,7 @@ class Main extends PluginBase implements Listener
             TeamGameSystem::setSpawnPoint($player);
 
             //テレポート
-            $level = $this->getServer()->getLevelByName($game->getMap()->getLevelName());
-            $player->teleport($level->getSpawnLocation());
+            $player->teleport($player->getSpawn());
 
             $player->addTitle("チームデスマッチ スタート");
 
