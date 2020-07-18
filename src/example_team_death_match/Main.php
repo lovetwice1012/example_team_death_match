@@ -39,7 +39,7 @@ class Main extends PluginBase implements Listener
         $map = TeamGameSystem::selectMap("Example", $teams);
         $game = Game::asNew($map, $teams, $maxScore, null, 300);
 
-        TeamGameSystem::createGame($game);
+        TeamGameSystem::registerGame($game);
 
         $this->teamDeathMatchGameIds[] = $game->getId();
     }
